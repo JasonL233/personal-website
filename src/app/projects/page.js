@@ -1,11 +1,11 @@
 "use client";
-import React, { useEffect } from 'react'
-import ProjectSection from '../components/ProjectSection'
-import EmailSection from '../components/EmailSection'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
+import React, { useEffect } from "react";
+import ProjectSection from "../components/ProjectSection";
+import EmailSection from "../components/EmailSection";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
-const page = () => {
+export default function ProjectsPage() {
   useEffect(() => {
     import("particles.js").then(() => {
       if (window.particlesJS) {
@@ -34,7 +34,5 @@ const page = () => {
       </div>
       <Footer />
     </main>
-  )
+  );
 }
-
-export default page
