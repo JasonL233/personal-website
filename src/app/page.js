@@ -38,7 +38,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <div className="text-4xl font-bold text-black mb-4">
-              Hello! I'm Jason
+              Hello! I&apos;m Jason
             </div>
             <p className="text-lg text-black mb-4">
               Take a look around my website.
