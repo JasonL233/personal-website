@@ -57,16 +57,13 @@ const projectsData = [
     },
     {
         id: 3,
-        title: "Project 3",
-        shortDescription: "A web application",
-        description: "A full-stack web application with advanced features and modern design principles.",
-        techStack: ["Next.js", "PostgreSQL", "Prisma", "GraphQL", "Tailwind CSS"],
+        title: "More projects to be added...",
+        shortDescription: "",
+        description: "",
+        techStack: [],
         images: [
-            "/images/projects/3.png",
-            "/images/projects/1.png",
-            "/images/projects/2.png"
         ],
-        tag: ["All", "Web"],
+        tag: ["All"],
         gitUrl: "/",
     }
 ]
