@@ -65,19 +65,19 @@ const EmailSection = () => {
             <form className="flex flex-col" onSubmit={handleSubmit}>
                 <div className="mb-6">
                     <label htmlFor="email" type="email" className="text-black block mb-2 text-sm font-medium ">Your email</label>
-                    <input name="email" type="email" id="email" required className="bg-white border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="helloWorld@gmail.com"/>
+                    <input name="email" type="email" id="email" required className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="helloWorld@gmail.com"/>
                 </div>
 
                 <div className="mb-6">
                     <label htmlFor="subject" type="subject" className="text-black block mb-2 text-sm font-medium ">Subject</label>
-                    <input name="subject" type="text" id="subject" required className="bg-white border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Just saying hi"/>
+                    <input name="subject" type="text" id="subject" required className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Just saying hi"/>
                 </div>
 
                 <div className="mb-6">
                     <label htmlFor="message" className="text-black block text-sm mb-2 font-medium">
                         Message
                     </label>
-                    <textarea name="message" id="message" className="bg-white border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Let's talk about..."> 
+                    <textarea name="message" id="message" className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Let's talk about...">
                     </textarea>
                 </div>
                 <button type="submit" className="bg-black hover:cursor-pointer text-white font-medium py-2.5 px-5 rounded-lg w-full">Send Message</button>

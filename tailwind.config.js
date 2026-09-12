@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        custom: "700px",
+      },
       fontFamily: {
         chinese: ["SongTi", "Arial", "sans-serif"],
         cjk: [
@@ -22,9 +25,7 @@ module.exports = {
           "STXihei",
           "sans-serif",
         ],
-        nav: [
-          "SimSun",
-        ],
+        nav: ["SimSun"],
       },
     },
   },

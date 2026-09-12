@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5efe3;
+  --surface: #fffaf1;
+  --border: #e4d8c5;
+  --foreground: #362c27;
 }
 
 @theme inline {
@@ -12,15 +14,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
-  background: var(--background);
+  background: radial-gradient(ellipse at 50% 25%, #fffcf5, #f0e9dd);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -29,3 +26,15 @@ body {
   font-family: SimSun, "宋体", serif !important;
 }
 
+
+/* Static atmosphere avoids background animation loops across route changes. */
+.ambient-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 18% 28%, #e6cda918, transparent 38%);
+}
+
+.site-surface { background: var(--surface); }
+.site-soft { background: #eee4d5; }
+.site-border { border-color: var(--border); }

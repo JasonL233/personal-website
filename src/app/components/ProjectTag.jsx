@@ -1,15 +1,32 @@
-import React from 'react'
+import React from "react";
+import { motion } from "framer-motion";
 
 const ProjectTag = ({ name, onClick, isSelected }) => {
-    const buttonStyles = isSelected ? "text-black border-black" : "text-[#ADB7BE] border-slate-500 text-gray-500 hover:border-slate-600"
-    return (
-        <button
-            className={`${buttonStyles} rounded-full border-2 px-6 py-3 text-xl cursor-pointer`}
-            onClick={() => onClick(name)}
-        >
-            {name}
-        </button>
-    )
-}
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={`
+                 relative px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out
+                   ${
+                     isSelected
+                       ? "bg-[#e7cfac] text-gray-700 shadow-lg shadow-[#c4a57a]/25"
+                       : "bg-[#f4ebdc] text-gray-600 hover:bg-[#eadcca] hover:text-gray-800 shadow-md hover:shadow-lg"
+                   }
+             `}
+      onClick={() => onClick(name)}
+    >
+      {name}
+      {isSelected && (
+        <motion.div
+          layoutId="activeTab"
+          className="absolute inset-0 bg-[#e7cfac] rounded-full -z-10"
+          initial={false}
+          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+        />
+      )}
+    </motion.button>
+  );
+};
 
-export default ProjectTag
+export default ProjectTag;
