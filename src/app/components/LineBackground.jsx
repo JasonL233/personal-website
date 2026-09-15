@@ -12,6 +12,7 @@ export default function LineBackground() {
     let width = 0, height = 0, frame = 0, last = 0, visible = true;
     const pointer = { x: -1000, y: -1000 };
     let particles = [];
+    let ink = document.documentElement.dataset.theme === "dark" ? "189,201,211" : "0,0,0";
     const makeParticle = (x = Math.random() * width, y = Math.random() * height) => ({ x, y, vx: (Math.random() - .5) * 100, vy: (Math.random() - .5) * 100, radius: .6 + Math.random() * 2.4 });
     function draw(delta = 0) {
       context.clearRect(0, 0, width, height);
@@ -31,10 +32,10 @@ export default function LineBackground() {
         for (let j = i + 1; j < particles.length; j++) {
           const b = particles[j], distance = Math.hypot(a.x - b.x, a.y - b.y);
           if (distance >= 150) continue;
-          context.strokeStyle = `rgba(0,0,0,${.4 * (1 - distance / 150)})`;
+          context.strokeStyle = `rgba(${ink},${.4 * (1 - distance / 150)})`;
           context.beginPath(); context.moveTo(a.x, a.y); context.lineTo(b.x, b.y); context.stroke();
         }
-        context.fillStyle = "rgba(0,0,0,.5)";
+        context.fillStyle = `rgba(${ink},.5)`;
         context.beginPath(); context.arc(a.x, a.y, a.radius, 0, Math.PI * 2); context.fill();
       }
     }
@@ -66,6 +67,11 @@ export default function LineBackground() {
       particles = particles.slice(-90);
       if (reducedMotion.matches) draw();
     }
+    const themeObserver = new MutationObserver(() => {
+      ink = document.documentElement.dataset.theme === "dark" ? "189,201,211" : "0,0,0";
+      resume();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
     const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; resume(); });
@@ -76,7 +82,7 @@ export default function LineBackground() {
     document.addEventListener("visibilitychange", resume);
     reducedMotion.addEventListener("change", resume);
     return () => {
-      cancelAnimationFrame(frame); resizeObserver.disconnect(); observer.disconnect();
+      cancelAnimationFrame(frame); themeObserver.disconnect(); resizeObserver.disconnect(); observer.disconnect();
       window.removeEventListener("pointermove", move); document.removeEventListener("pointerleave", leave);
       window.removeEventListener("click", push); document.removeEventListener("visibilitychange", resume);
       reducedMotion.removeEventListener("change", resume);

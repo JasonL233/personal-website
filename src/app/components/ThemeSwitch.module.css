@@ -1,0 +1,12 @@
+.control { display: flex; align-items: center; gap: 7px; }
+.toggle { position: relative; width: 58px; height: 32px; border: 1px solid var(--border); border-radius: 20px; background: var(--soft); cursor: pointer; }
+.toggle svg { position: absolute; top: 8px; width: 14px; height: 14px; z-index: 1; color: var(--muted); }
+.sun { left: 7px; }
+.moon { right: 7px; }
+.thumb { position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 4px #0002; transition: transform .25s ease; }
+.toggle[aria-checked="true"] .thumb { transform: translateX(26px); }
+.toggle[aria-checked="true"] .moon, .toggle[aria-checked="false"] .sun { color: var(--accent); }
+.auto { min-height: 36px; padding: 4px 5px; font-size: 11px; color: var(--muted); cursor: pointer; text-underline-offset: 4px; }
+.auto[aria-pressed="true"] { color: var(--accent); text-decoration: underline; }
+.toggle:focus-visible, .auto:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .thumb { transition: none; } }

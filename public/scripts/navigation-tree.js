@@ -1,6 +1,8 @@
 // Pinned browser-native CDN import, outside the initial Next.js route bundle.
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import { createPlanet } from './maple-planet.js?v=continents-1';
+import { createRecordPlayer } from './maple-record-player.js';
+import { createPlanet } from './maple-planet.js?v=soft-city-light-1';
+import { createMeteorShower } from './maple-meteors.js?v=background-sky-3';
 
 export function createNavigationTree(host, { colors, onHover, onNavigate, onProject, onError }) {
   const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'low-power' });
@@ -13,22 +15,24 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   host.appendChild(canvas);
   const surface = host.parentElement;
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(36,1,.1,60);
-  const planet = createPlanet(scene);
+  const planet = createPlanet(scene,requestRender,{maxTextureSize:renderer.capabilities.maxTextureSize,anisotropy:renderer.capabilities.getMaxAnisotropy()});
+  const meteors=createMeteorShower(scene);
   // The attachment carries the tree, fallen leaves and ripples together.
   // Its initial frame preserves the original tree silhouette and root placement.
   const attachment = new THREE.Group(); scene.add(attachment);
   const model = new THREE.Group(); attachment.add(model);
+  const recordPlayer=createRecordPlayer(attachment,planet);
   const initialNormal = planet.center.clone().negate().normalize();
   const anchorNormal = initialNormal.clone(), worldNormal = initialNormal.clone();
-  const anchorRotation = new THREE.Quaternion();
+  let shadowDirty=true,fallingWasVisible=false;
   function updateAttachment() {
-    worldNormal.copy(anchorNormal).applyQuaternion(planet.group.quaternion);
+    worldNormal.copy(anchorNormal);
     attachment.position.copy(worldNormal).multiplyScalar(planet.radius).add(planet.center);
-    anchorRotation.setFromUnitVectors(initialNormal,anchorNormal);
-    attachment.quaternion.copy(planet.group.quaternion).multiply(anchorRotation);
+    attachment.quaternion.setFromUnitVectors(initialNormal,anchorNormal);
+    shadowDirty=true;
     attachment.updateMatrixWorld(true);
   }
-  let renderWidth=1,renderHeight=1,bleedLeft=0;
+  let renderWidth=1,renderHeight=1,bleedLeft=0,bleedTop=0;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const geometries = new Set(), materials = new Set(), treePickables = [];
   const geometry = value => { geometries.add(value);return value; };
@@ -37,14 +41,30 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   let burstStart = -Infinity, burstOrigin = 2, pointerDown = null, suppressClick = false;
   const centers = [[-1.35,3.65,.2],[1.35,3.72,.1],[0,4.87,-.3]];
   const levels = [0,0,0], groups = [], foliage = [];
-  scene.add(new THREE.HemisphereLight(0xfff3d8,0x897261,1.9));
-  // Turn the tree beneath a fixed, warm light in the viewer's upper right.
-  const sun = new THREE.DirectionalLight(0xffe3af,3.2);sun.position.set(6,9,5);sun.target.position.set(0,2.5,0);
+  const hemisphere=new THREE.HemisphereLight(0xfff4df,0x897261,1.35);scene.add(hemisphere);
+  let nightTarget=document.documentElement.dataset.theme==='dark'?1:0,nightLevel=nightTarget;
+  const themeObserver=new MutationObserver(()=>{nightTarget=document.documentElement.dataset.theme==='dark'?1:0;requestRender();});
+  themeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  // Warm sunlight and a soft rim light both come from the upper right.
+  const sun = new THREE.DirectionalLight(0xffe0a6,5.2);sun.position.set(6,9,5);sun.target.position.set(0,2.5,0);
   sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-5,right:5,top:7,bottom:-4,near:.5,far:24});
   sun.shadow.normalBias=.035;sun.shadow.bias=-.0002;
   scene.add(sun,sun.target);
-  const fill = new THREE.DirectionalLight(0xffffff,.75);fill.position.set(-4,4,-4);scene.add(fill);
+  const fill = new THREE.DirectionalLight(0xffffff,.65);fill.position.set(-4,4,-4);scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffd58a,.9);rim.position.set(5,7,-4);scene.add(rim);
+  // Soft pools of actual surface illumination, with no geometry drawn in the air.
+  const groundSun=new THREE.SpotLight(0xffefd1,420,0,.25,1,2);
+  groundSun.castShadow=true;groundSun.shadow.mapSize.set(512,512);
+  groundSun.shadow.normalBias=.045;groundSun.shadow.bias=-.0002;
+  groundSun.shadow.camera.near=.5;groundSun.shadow.camera.far=30;
+  const canopySun=new THREE.SpotLight(0xffe4b5,180,0,.18,1,2);
+  scene.add(groundSun,groundSun.target,canopySun,canopySun.target);
+  // A bounded diffuse fill avoids the inverse-square hot spot at the roots.
+  // The sampled city field still controls its strength and direction.
+  const cityBounce=new THREE.DirectionalLight(0xffe4bd,0);scene.add(cityBounce,cityBounce.target);
+  const citySample={intensity:0,position:new THREE.Vector3()};
+  let cityLevel=0,lastCitySample=-Infinity;
   const bark = material(new THREE.MeshStandardMaterial({color:0x72513a,roughness:1,flatShading:true}));
   const cylinder = geometry(new THREE.CylinderGeometry(.55,1,1,7));
   const axisY=new THREE.Vector3(0,1,0),axisZ=new THREE.Vector3(0,0,1),surfaceNormal=new THREE.Vector3();
@@ -79,7 +99,7 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
     const stem=branch([0,index===2?2.9:1.9,0],joint,.1);stem.userData.index=index;
     branch(joint,[x,y,z],.06);
     for(let i=0;i<6;i++) { const a=i*Math.PI/3;branch([0,-.65,0],[Math.cos(a)*.76,.17,Math.sin(a)*.56],.025,group); }
-    const leafMaterial=material(new THREE.MeshStandardMaterial({color:colors[index],roughness:.9,flatShading:true,side:THREE.DoubleSide}));foliage.push(leafMaterial);
+    const leafMaterial=material(new THREE.MeshStandardMaterial({color:colors[index],roughness:.76,flatShading:true,side:THREE.DoubleSide}));foliage.push(leafMaterial);
     const leaves=new THREE.InstancedMesh(leafGeometry,leafMaterial,180);leaves.userData.index=index;leaves.castShadow=leaves.receiveShadow=true;
     for(let i=0;i<180;i++) {
       const a=random()*Math.PI*2,v=random()*2-1,r=Math.cbrt(random()),ring=Math.sqrt(1-v*v);
@@ -127,7 +147,7 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   const fallingMaterial=material(new THREE.MeshStandardMaterial({color:0xd18839,side:THREE.DoubleSide,roughness:1,transparent:true}));
   const falling=new THREE.InstancedMesh(leafGeometry,fallingMaterial,7);falling.visible=false;falling.castShadow=true;falling.frustumCulled=false;model.add(falling);
   const drifters=Array.from({length:7},()=>({x:(random()-.5)*1.6,z:(random()-.5)*1.4,delay:random()*.45,size:.12+random()*.09,phase:random()*6.28,landed:false,landX:0,landZ:0}));
-  // Brief showers and impact rings settle, then rendering stops until the next interaction.
+  // Brief showers settle; the globe alone continues its slow, constant rotation.
   function shower(index,time) {
     burstOrigin=index;burstStart=time;drifters.forEach(leaf=>{leaf.landed=false;});fallingMaterial.color.set(colors[index]);requestRender();
   }
@@ -135,21 +155,18 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
     if(index===active)return;
     active=index;onHover(index);
     if(index!==null && !reducedMotion.matches)shower(index,performance.now());
-    canvas.style.cursor=pointerDown?.dragged?'grabbing':index===null?'grab':'pointer';requestRender();
+    canvas.style.cursor=pointerDown?.dragged?'grabbing':index===null?'default':'pointer';requestRender();
   }
   const turn = new THREE.Quaternion(), cameraRight = new THREE.Vector3(), cameraUp = new THREE.Vector3();
-  function rotate(amount,vertical=0,moveTree=false){
+  function moveTree(amount,vertical=0){
     cameraRight.setFromMatrixColumn(camera.matrixWorld,0);
     cameraUp.setFromMatrixColumn(camera.matrixWorld,1);
     turn.setFromAxisAngle(cameraUp,amount).multiply(new THREE.Quaternion().setFromAxisAngle(cameraRight,vertical));
-    if(moveTree){
-      worldNormal.copy(anchorNormal).applyQuaternion(planet.group.quaternion).applyQuaternion(turn);
-      anchorNormal.copy(worldNormal).applyQuaternion(planet.group.quaternion.clone().invert()).normalize();
-    }else planet.group.quaternion.premultiply(turn).normalize();
+    anchorNormal.applyQuaternion(turn).normalize();
     updateAttachment();highlight(null);requestRender();
   }
   function reset(){
-    planet.group.quaternion.identity();anchorNormal.copy(initialNormal);
+    anchorNormal.copy(initialNormal);
     updateAttachment();highlight(null);requestRender();
   }
   const target=new THREE.Vector3(0,2.8,0),projected=new THREE.Vector3();
@@ -160,8 +177,21 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   function render(time) {
     frame=0;if(disposed||failed||!visible||document.hidden)return;
     if(lastFrame && time-lastFrame<1000/30){requestRender();return;}
-    const delta=lastFrame?Math.min((time-lastFrame)/1000,.08):1/30;lastFrame=time;
-    let changing=false;
+    const elapsed=lastFrame?(time-lastFrame)/1000:1/30;
+    const delta=Math.min(elapsed,.08);lastFrame=time;
+    const spinning=!reducedMotion.matches;
+    recordPlayer.update(delta,spinning);
+    if(spinning)planet.group.rotation.y=(planet.group.rotation.y+delta*.035)%(Math.PI*2);
+    nightLevel=reducedMotion.matches?nightTarget:THREE.MathUtils.damp(nightLevel,nightTarget,5,delta);
+    if(Math.abs(nightLevel-nightTarget)<.001)nightLevel=nightTarget;
+    let changing=nightLevel!==nightTarget;
+    planet.setNightFactor(nightLevel);
+    meteors.update(elapsed,spinning,nightLevel);
+    hemisphere.intensity=THREE.MathUtils.lerp(1.35,.62,nightLevel);
+    sun.intensity=THREE.MathUtils.lerp(5.2,1.15,nightLevel);
+    fill.intensity=THREE.MathUtils.lerp(.65,.4,nightLevel);
+    rim.intensity=THREE.MathUtils.lerp(.9,1.1,nightLevel);
+    groundSun.intensity=420*(1-nightLevel);canopySun.intensity=180*(1-nightLevel);
     groups.forEach((group,index)=>{
       const desired=index===active?1:0;
       levels[index]=reducedMotion.matches?desired:THREE.MathUtils.damp(levels[index],desired,9,delta);
@@ -192,23 +222,43 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
     rippleUniforms.uTime.value=time/1000;
     const wavesActive=!reducedMotion.matches&&rippleUniforms.uImpacts.value.some(impact=>time/1000-impact.z>=0&&time/1000-impact.z<1.8);
 
-    updateAttachment();
-    // Keep the sun direction fixed as the tree moves, and keep its shadow in range.
-    sun.position.copy(attachment.position).add(new THREE.Vector3(6,9,5));
-    sun.target.position.copy(attachment.position).add(new THREE.Vector3(0,2.5,0));
+    // The sphere spins independently; the tree and its ground effects stay put.
+    if(shadowDirty){
+      sun.position.copy(attachment.position).add(new THREE.Vector3(6,9,5));
+      sun.target.position.copy(attachment.position).add(new THREE.Vector3(0,2.5,0));
+      groundSun.position.copy(attachment.position).add(new THREE.Vector3(6,10,5));
+      groundSun.target.position.copy(attachment.position).add(new THREE.Vector3(.9,0,.3));
+      canopySun.position.copy(attachment.position).add(new THREE.Vector3(6,9,5));
+      canopySun.target.position.copy(attachment.position).add(new THREE.Vector3(.8,4.3,.1));
+    }
     scene.updateMatrixWorld(true);
-    onProject(groups.map(group=>{
+    if(nightLevel>0&&(reducedMotion.matches||time-lastCitySample>100||shadowDirty)){
+      planet.nearbyLight(attachment.position,citySample);lastCitySample=time;
+    }
+    cityLevel=reducedMotion.matches?citySample.intensity:THREE.MathUtils.damp(cityLevel,citySample.intensity,1.2,delta);
+    if(Math.abs(cityLevel-citySample.intensity)>.001&&nightLevel>0)changing=true;
+    if(reducedMotion.matches||shadowDirty)cityBounce.position.copy(citySample.position);
+    else cityBounce.position.lerp(citySample.position,1-Math.exp(-1.5*delta));
+    cityBounce.target.position.set(0,2.5,0).applyMatrix4(attachment.matrixWorld);
+    // Lift faint city reflections into view while keeping bright regions dim.
+    // Zero city light still gives zero bounce; the existing easing stays soft.
+    cityBounce.intensity=nightLevel*Math.min(Math.pow(cityLevel,.8)*1.3,.7);
+    onProject(groups.map((group,index)=>{
       projected.set(0,.05,0);group.localToWorld(projected);
+      const depth=-projected.clone().applyMatrix4(camera.matrixWorldInverse).z;
+      const originalDepth=-new THREE.Vector3(...centers[index]).applyMatrix4(camera.matrixWorldInverse).z;
+      const labelScale=THREE.MathUtils.clamp(originalDepth/Math.max(.1,depth)*group.scale.x,.12,2.5);
       const distance=camera.position.distanceTo(projected);
       labelRay.set(camera.position,projected.clone().sub(camera.position).normalize());
       const obstruction=labelRay.intersectSphere(globeSphere,labelIntersection);
       const occluded=!!obstruction&&camera.position.distanceTo(obstruction)<distance-.05;
       projected.project(camera);
       const shown=!occluded&&projected.z>-1&&projected.z<1&&Math.abs(projected.x)<1&&Math.abs(projected.y)<1;
-      return [(projected.x*.5+.5)*renderWidth-bleedLeft,(-projected.y*.5+.5)*renderHeight,shown];
+      return [(projected.x*.5+.5)*renderWidth-bleedLeft,(-projected.y*.5+.5)*renderHeight-bleedTop,shown,labelScale];
     }));
-    renderer.shadowMap.needsUpdate=true;renderer.render(scene,camera);
-    if(changing||falling.visible||wavesActive)requestRender();
+    renderer.shadowMap.needsUpdate=shadowDirty||changing||falling.visible||fallingWasVisible!==falling.visible;
+    renderer.render(scene,camera);shadowDirty=false;fallingWasVisible=falling.visible;
+    if(spinning||changing||falling.visible||wavesActive)requestRender();
   }
   function requestRender(){if(!disposed&&!failed&&!frame&&visible&&!document.hidden)frame=requestAnimationFrame(render);}
   function wake(){cancelAnimationFrame(frame);frame=0;lastFrame=0;requestRender();}
@@ -216,14 +266,16 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
     const width=host.clientWidth,height=host.clientHeight;if(!width||!height)return;
     const rect=host.getBoundingClientRect();
     bleedLeft=Math.max(0,rect.left);
+    bleedTop=Math.max(0,rect.top);
     renderWidth=width+bleedLeft+Math.max(0,document.documentElement.clientWidth-rect.right);
-    renderHeight=height+Math.max(0,window.innerHeight-rect.bottom);
+    renderHeight=height+bleedTop+Math.max(0,window.innerHeight-rect.bottom);
     camera.clearViewOffset();camera.aspect=width/height;positionCamera();
     // Expand the drawing area without moving or shrinking the original tree.
-    camera.setViewOffset(width,height,-bleedLeft,0,renderWidth,renderHeight);
+    camera.setViewOffset(width,height,-bleedLeft,-bleedTop,renderWidth,renderHeight);
+    meteors.resize(renderWidth,renderHeight,window.innerHeight,rect.top-bleedTop);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5,Math.sqrt(2500000/(renderWidth*renderHeight))));
     renderer.setSize(renderWidth,renderHeight,false);
-    Object.assign(canvas.style,{position:'absolute',left:`${-bleedLeft}px`,width:`${renderWidth}px`,height:`${renderHeight}px`});
+    Object.assign(canvas.style,{position:'absolute',left:`${-bleedLeft}px`,top:`${-bleedTop}px`,width:`${renderWidth}px`,height:`${renderHeight}px`});
     requestRender();
   }
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -251,33 +303,33 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   }
   function move(event){
     if(pointerDown?.id===event.pointerId){
-      const press=pointerDown,dx=event.clientX-press.lastX,dy=event.clientY-press.lastY;
-      press.lastX=event.clientX;press.lastY=event.clientY;
+      const press=pointerDown;
       if(press.dragged||Math.hypot(event.clientX-press.x,event.clientY-press.y)>7){
         press.dragged=true;suppressClick=true;surface.dataset.dragging='true';
         if(!surface.hasPointerCapture(event.pointerId))surface.setPointerCapture(event.pointerId);
-        if(press.mode==='tree'){
-          turn.setFromUnitVectors(press.surfaceNormal,dragNormal({clientX:event.clientX+press.offsetX,clientY:event.clientY+press.offsetY}));
-          worldNormal.copy(press.anchor).applyQuaternion(turn);
-          anchorNormal.copy(worldNormal).applyQuaternion(planet.group.quaternion.clone().invert()).normalize();
-          updateAttachment();highlight(null);requestRender();
-        }else rotate(dx*.004,dy*.004);
+        turn.setFromUnitVectors(press.surfaceNormal,dragNormal({clientX:event.clientX+press.offsetX,clientY:event.clientY+press.offsetY}));
+        worldNormal.copy(press.anchor).applyQuaternion(turn);
+        anchorNormal.copy(worldNormal).normalize();
+        updateAttachment();highlight(null);requestRender();
         canvas.style.cursor='grabbing';
       }
       return;
     }
-    if(event.pointerType==='mouse'&&!event.target.closest('[data-tree-link]'))highlight(hit(event));
+    if(event.pointerType==='mouse'&&!event.target.closest('[data-tree-link]')){
+      const candidate=treeHit(event),index=candidate?.object.userData.index??null;
+      highlight(index);canvas.style.cursor=candidate?(index===null?'grab':'pointer'):'default';
+    }
   }
   function down(event){
     if(event.target.closest('button'))return;
     if(event.isPrimary&&event.button===0){
       suppressClick=false;
       const link=!!event.target.closest('[data-tree-link]');
-      const mode=link||treeHit(event)?'tree':'planet';
+      if(!link&&!treeHit(event))return;
       const rect=canvas.getBoundingClientRect(),root=attachment.position.clone().project(camera);
       const rootX=rect.left+(root.x*.5+.5)*rect.width,rootY=rect.top+(-root.y*.5+.5)*rect.height;
-      pointerDown={x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,id:event.pointerId,
-        dragged:false,link,mode,offsetX:rootX-event.clientX,offsetY:rootY-event.clientY,
+      pointerDown={x:event.clientX,y:event.clientY,id:event.pointerId,
+        dragged:false,link,offsetX:rootX-event.clientX,offsetY:rootY-event.clientY,
         surfaceNormal:dragNormal({clientX:rootX,clientY:rootY}),anchor:worldNormal.clone()};
     }
   }
@@ -290,7 +342,7 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   }
   function cancel(event){
     if(event&&surface.hasPointerCapture(event.pointerId))surface.releasePointerCapture(event.pointerId);
-    pointerDown=null;delete surface.dataset.dragging;canvas.style.cursor=active===null?'grab':'pointer';
+    pointerDown=null;delete surface.dataset.dragging;canvas.style.cursor=active===null?'default':'pointer';
   }
   function click(event){if(suppressClick&&event.detail!==0){event.preventDefault();event.stopPropagation();suppressClick=false;}}
   function dragStart(event){event.preventDefault();}
@@ -303,6 +355,6 @@ export function createNavigationTree(host, { colors, onHover, onNavigate, onProj
   document.addEventListener('visibilitychange',wake);reducedMotion.addEventListener('change',wake);
   const resizer=new ResizeObserver(resize);resizer.observe(host);
   const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible&&firstView){firstView=false;if(!reducedMotion.matches)shower(2,performance.now());}wake();});observer.observe(host);
-  resize();
-  return {highlight,rotate,reset,dispose(){disposed=true;cancelAnimationFrame(frame);resizer.disconnect();observer.disconnect();window.removeEventListener('resize',resize);document.removeEventListener('visibilitychange',wake);reducedMotion.removeEventListener('change',wake);Object.entries(handlers).forEach(([event,handler])=>surface.removeEventListener(event,handler));surface.removeEventListener('click',click,true);canvas.removeEventListener('webglcontextlost',lost);sun.shadow.dispose();planet.dispose();scene.traverse(object=>{if(object.isInstancedMesh)object.dispose();});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());renderer.dispose();renderer.forceContextLoss();canvas.remove();}};
+  updateAttachment();resize();
+  return {highlight,moveTree,reset,dispose(){disposed=true;themeObserver.disconnect();cancelAnimationFrame(frame);resizer.disconnect();observer.disconnect();window.removeEventListener('resize',resize);document.removeEventListener('visibilitychange',wake);reducedMotion.removeEventListener('change',wake);Object.entries(handlers).forEach(([event,handler])=>surface.removeEventListener(event,handler));surface.removeEventListener('click',click,true);canvas.removeEventListener('webglcontextlost',lost);sun.shadow.dispose();groundSun.shadow.dispose();recordPlayer.dispose();meteors.dispose();planet.dispose();scene.traverse(object=>{if(object.isInstancedMesh)object.dispose();});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());renderer.dispose();renderer.forceContextLoss();canvas.remove();}};
 }

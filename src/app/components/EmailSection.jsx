@@ -41,10 +41,10 @@ const EmailSection = () => {
     return (
     <section id="contact" className="grid md:grid-cols-2 my-12 md:my-12 py-18 gap-4 relative">
         <div className="z-10">
-            <h3 className="text-2xl font-bold text-black my-2">
-                Let's Connect!
+            <h3 className="text-2xl font-bold text-[var(--foreground)] my-2">
+                Let&apos;s Connect!
             </h3>
-            <p className="text-[#333333] mb-4 max-w-md">
+            <p className="text-[var(--muted)] mb-4 max-w-md">
                 {" "}
                 If you have any questions, feel free to reach out to me!
             </p>
@@ -64,20 +64,20 @@ const EmailSection = () => {
         <div>
             <form className="flex flex-col" onSubmit={handleSubmit}>
                 <div className="mb-6">
-                    <label htmlFor="email" type="email" className="text-black block mb-2 text-sm font-medium ">Your email</label>
-                    <input name="email" type="email" id="email" required className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="helloWorld@gmail.com"/>
+                    <label htmlFor="email" type="email" className="text-[var(--foreground)] block mb-2 text-sm font-medium ">Your email</label>
+                    <input name="email" type="email" id="email" required className="site-surface border border-[var(--border)] placeholder-[#9CA2A9] text-[var(--foreground)] text-sm rounded-lg block w-full p-2.5" placeholder="helloWorld@gmail.com"/>
                 </div>
 
                 <div className="mb-6">
-                    <label htmlFor="subject" type="subject" className="text-black block mb-2 text-sm font-medium ">Subject</label>
-                    <input name="subject" type="text" id="subject" required className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Just saying hi"/>
+                    <label htmlFor="subject" type="subject" className="text-[var(--foreground)] block mb-2 text-sm font-medium ">Subject</label>
+                    <input name="subject" type="text" id="subject" required className="site-surface border border-[var(--border)] placeholder-[#9CA2A9] text-[var(--foreground)] text-sm rounded-lg block w-full p-2.5" placeholder="Just saying hi"/>
                 </div>
 
                 <div className="mb-6">
-                    <label htmlFor="message" className="text-black block text-sm mb-2 font-medium">
+                    <label htmlFor="message" className="text-[var(--foreground)] block text-sm mb-2 font-medium">
                         Message
                     </label>
-                    <textarea name="message" id="message" className="site-surface border border-[#33353F] placeholder-[#9CA2A9] text-black text-sm rounded-lg block w-full p-2.5" placeholder="Let's talk about...">
+                    <textarea name="message" id="message" className="site-surface border border-[var(--border)] placeholder-[#9CA2A9] text-[var(--foreground)] text-sm rounded-lg block w-full p-2.5" placeholder="Let's talk about...">
                     </textarea>
                 </div>
                 <button type="submit" className="bg-black hover:cursor-pointer text-white font-medium py-2.5 px-5 rounded-lg w-full">Send Message</button>

@@ -1,23 +1,22 @@
-.tree { position: relative; width: 100%; height: clamp(490px, 76svh, 800px); isolation: isolate; }
+.tree { position: relative; top: clamp(12px, 2.5svh, 24px); width: 100%; height: clamp(490px, 76svh, 800px); isolation: isolate; }
 .canvas { position: absolute; inset: 0; }
-.canvas canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.canvas canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: default; }
 .tree { touch-action: none; user-select: none; }
 .tree[data-dragging="true"] .branchLink { pointer-events: none; }
-.branchLink { position: absolute; z-index: 1; transform: translate(-50%, -35%); width: max-content; max-width: 190px; padding: 14px 9px; text-align: center; opacity: 0; color: #fff8e5; text-shadow: 0 2px 12px #4a281ce6, 0 1px 3px #482818; transition: opacity .22s, transform .3s; text-decoration: none; }
+.branchLink { position: absolute; z-index: 1; transform: translate(-50%, -50%) scale(var(--label-scale, 1)); transform-origin: center; width: max-content; max-width: 190px; padding: 14px 9px; text-align: center; opacity: 0; color: #fff8e5; text-shadow: 0 2px 12px #4a281ce6, 0 1px 3px #482818; transition: opacity .22s; text-decoration: none; }
 .branchName { display: block; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.35rem, 2.8vw, 2.2rem); font-style: italic; line-height: 1.15; letter-spacing: -.04em; }
-.flourish { display: block; margin: 5px auto 0; fill: none; stroke: currentColor; stroke-width: 1; opacity: .8; }
-.branchLink[data-active="true"], .branchLink:hover, .branchLink:focus-visible { opacity: 1; transform: translate(-50%, -45%); }
+.branchLink[data-active="true"], .branchLink:hover, .branchLink:focus-visible { opacity: 1; }
 .branchLink:focus-visible { outline: 1px dashed #fff1d1; outline-offset: 4px; border-radius: 50%; }
-.status { position: absolute; left: 0; right: 0; bottom: 13%; text-align: center; font-family: Georgia, serif; font-style: italic; color: #937b61; font-size: .85rem; pointer-events: none; }
+.status { position: absolute; left: 0; right: 0; bottom: 13%; text-align: center; font-family: Georgia, serif; font-style: italic; color: var(--muted); font-size: .85rem; pointer-events: none; }
 .tree[data-status="unavailable"] .branchLink, .tree[data-status="loading"] .branchLink { opacity: 1; color: var(--leaf-color); text-shadow: none; }
 @media (hover: none) { .branchLink { opacity: 1; } .branchName { font-size: 1.3rem; } }
-@media (max-width: 700px) { .tree { height: clamp(460px, 64svh, 610px); } .branchLink { max-width: 145px; padding: 12px 5px; } .branchName { font-size: 1.4rem; } .flourish { width: 80px; } }
+@media (max-width: 700px) { .tree { height: clamp(460px, 64svh, 610px); } .branchLink { max-width: 145px; padding: 12px 5px; } .branchName { font-size: 1.4rem; } }
 @media (prefers-reduced-motion: reduce) { .branchLink { transition: none; } }
 
 .tree:focus-visible { outline: none; }
-.tree:focus-visible .reset { outline: 1px dashed #9d856b; outline-offset: 5px; }
+.tree:focus-visible::after { content: "Arrow keys move the tree · Escape resets"; position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-size: .72rem; color: var(--muted); white-space: nowrap; }
 .branchLink[hidden] { display: none; }
-.reset { position: absolute; z-index: 2; bottom: 8px; right: 18px; border: 0; padding: 8px; background: transparent; color: #8a745e; font: inherit; font-size: .72rem; cursor: pointer; }
-.reset:hover { color: #5e4736; }
+.reset { min-height: 44px; border: 0; padding: 10px 12px; background: transparent; color: var(--muted); text-shadow: 0 1px 4px #fffaf0; font: inherit; font-size: .72rem; cursor: pointer; }
+.reset:hover { color: var(--muted); }
 .reset:focus-visible { outline: 1px dashed #9d856b; outline-offset: 3px; }
-@media (max-width: 700px) { .reset { top: 4px; bottom: auto; right: 4px; } }
+:global([data-theme="dark"]) .reset { text-shadow: none; }

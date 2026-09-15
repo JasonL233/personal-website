@@ -2,19 +2,20 @@ import Image from "next/image";
 import Navbar from "./components/Navbar";
 import LineBackground from "./components/LineBackground";
 import NavigationTree from "./components/NavigationTree";
+import VisitorTracker from "./components/VisitorTracker";
+import VisitorStats from "./components/VisitorStats";
 import styles from "./Home.module.css";
 
 export default function Home() {
   return (
     <main className={styles.home}>
+      <VisitorTracker />
       <div className={styles.lines}><LineBackground /></div>
       <div className={styles.header}><Navbar /></div>
       <div className={styles.hero}>
         <div className={styles.intro}>
-          <p className={styles.eyebrow}>WELCOME TO MY LITTLE CORNER</p>
           <h1>Hello,{" "}<br />I’m Jason<span>.</span></h1>
-          <p className={styles.description}>A little curiosity.{" "}<br />A few ideas taking root.</p>
-          <p className={styles.hint}>Drag the globe to rotate · Drag the tree to move <span aria-hidden="true">↗</span></p>
+          <p className={styles.welcome}>Welcome to my portfolio!</p>
           <div className={styles.socials}>
             <a href="mailto:Lin1jason8@outlook.com" aria-label="Email Jason"><Image src="/email.svg" alt="" width={28} height={28} /></a>
             <a href="https://github.com/JasonL233" target="_blank" rel="noopener noreferrer" aria-label="Jason on GitHub"><Image src="/github.svg" alt="" width={28} height={28} /></a>
@@ -23,6 +24,8 @@ export default function Home() {
         </div>
         <NavigationTree />
       </div>
+      <div id="maple-tree-controls" className={styles.controls} />
+      <div className={styles.visitors}><VisitorStats /></div>
     </main>
   );
 }

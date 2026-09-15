@@ -141,13 +141,13 @@ const ProjectSection = () => {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold bg-black bg-clip-text text-transparent mb-6">
+          <h2 className="text-5xl font-bold text-[var(--foreground)] mb-6">
             My Projects
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-[var(--muted)] max-w-2xl mx-auto">
             Explore my portfolio of web applications, AI/ML research projects,
             and game development
           </p>
@@ -211,22 +211,22 @@ const ProjectSection = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4 mr-10">
+                <h3 className="text-2xl font-bold text-[var(--foreground)] mb-4 mr-10">
                   {selectedProject.title}
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-[var(--muted)] mb-6">
                   {selectedProject.description}
                 </p>
 
                 <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                  <h4 className="text-lg font-semibold text-[var(--foreground)] mb-3">
                     Tech Stack
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedProject.techStack.map((tech, index) => (
                       <span
                         key={index}
-                        className="site-soft text-black px-3 py-1 rounded-full text-sm"
+                        className="site-soft text-[var(--foreground)] px-3 py-1 rounded-full text-sm"
                       >
                         {tech}
                       </span>

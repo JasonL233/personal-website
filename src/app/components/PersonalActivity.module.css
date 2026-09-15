@@ -1,0 +1,73 @@
+.section { margin-top: 4.5rem; }
+.sectionHeading { margin-bottom: 1.5rem; }
+.sectionHeading h2 { display: flex; align-items: center; gap: .75rem; font-family: Georgia, "Times New Roman", serif; font-size: 1.875rem; letter-spacing: -.025em; color: var(--foreground); }
+/* Same badge treatment as the per-card brand icons, so the section title reads as part of the set. */
+.sectionIcon { display: grid; flex-shrink: 0; place-items: center; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--accent); }
+.sectionIcon svg { width: 20px; height: 20px; }
+.sectionHeading > p { margin-top: .45rem; color: var(--muted); font-size: .875rem; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.card { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 407px; padding: 22px 19px 0; overflow: hidden; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+.cardHeader { display: flex; gap: 10px; align-items: center; }
+.cardHeader h3 { font-size: 15px; font-weight: 600; letter-spacing: -.025em; color: var(--foreground); }
+.cardHeader p { margin-top: 3px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.brandIcon { display: grid; flex-shrink: 0; place-items: center; width: 35px; height: 35px; border: 1px solid #e4d8c580; border-radius: 11px; font-size: 20px; }
+.leetcodeBrand { background: #fbefdb; color: #b78125; }
+.duolingoBrand { background: #eef5de; color: #64a51d; }
+.leagueBrand { background: #f0ebdd; color: #a08243; }
+.leetcodeBody { display: grid; grid-template-columns: minmax(0, 1fr) 78px; align-items: center; gap: 6px; flex: 1; margin-top: 34px; }
+.ring { position: relative; width: 100%; max-width: 220px; margin-inline: auto; aspect-ratio: 1; }
+.ring > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.ringLabel { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-bottom: 10px; }
+.ringLabel > div { display: flex; align-items: baseline; gap: 2px; white-space: nowrap; }
+.ringLabel strong { font-size: clamp(28px, 3.2vw, 40px); letter-spacing: -.06em; line-height: 1.2; font-weight: 650; color: var(--foreground); }
+.ringLabel > div > span { font-size: 12px; color: var(--muted); }
+.ringLabel p { margin-top: 5px; font-size: 15px; color: var(--foreground); }
+.solvedCheck { color: #4d9d50; }
+.attempting { position: absolute; bottom: 6%; width: 100%; text-align: center; font-size: 11px; color: var(--muted); }
+.difficulties { display: grid; gap: 9px; }
+.difficulties > div { padding: 10px 4px; text-align: center; border-radius: 9px; background: var(--soft); }
+.difficulties dt { font-size: 12px; font-weight: 600; }
+.difficulties dd { margin-top: 3px; color: var(--foreground); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.difficulties dd span { font-size: 10px; color: var(--muted); font-weight: 400; }
+.cardNote { color: var(--muted); font-size: 12px; text-align: center; margin: 22px 0 31px; }
+.duolingoCard { background: radial-gradient(ellipse at 50% 45%, #f1f6df 0, var(--surface) 66%); }
+.owlStage { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 225px; margin: 12px 0 16px; }
+.duoEmbed { display: block; width: 100%; min-height: 205px; flex: 1; border: 0; border-radius: 10px; }
+.modelCredit { margin-top: 7px; font-size: 9px; line-height: 1.5; color: var(--muted); text-align: center; }
+.modelCredit a { color: #727a53; text-underline-offset: 2px; }
+.modelCredit a:hover { text-decoration: underline; }
+.modelCredit a:focus-visible, .rankEmblem:focus-visible, .source a:focus-visible, .source button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.streak { display: flex; align-items: baseline; justify-content: center; gap: 7px; margin: 0 0 24px; color: #cb7b22; }
+.streak svg { align-self: center; width: 20px; height: 25px; color: #ff9600; }
+.streak strong { font-size: 33px; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.streak > span { font-size: 13px; color: var(--muted); }
+.leagueCard { background: radial-gradient(ellipse at 50% 36%, #edf0f0 0, var(--surface) 64%); }
+.leagueBody { display: flex; flex: 1; flex-direction: column; align-items: center; }
+.rankEmblem { position: relative; width: 148px; height: 148px; margin-top: 12px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; }
+.rankBadge { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 12px #52618622); transition: transform .24s ease-out; }
+.rankEmblem:is(:hover, :focus-visible) .rankBadge { transform: scale(1.06); }
+.rankEmblem svg { width: 88px; height: 104px; opacity: .8; }
+.summoner { font-size: 16px; font-weight: 600; color: var(--foreground); letter-spacing: .015em; overflow-wrap: anywhere; text-align: center; }
+.rankTitle { display: flex; justify-content: center; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); margin-top: 4px; }
+.rankTitle > span { padding-left: 8px; border-left: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+.winRate { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; padding: 13px 0 0; margin-top: auto; margin-bottom: 22px; font-size: 12px; font-weight: 400; line-height: 1.5; font-variant-numeric: tabular-nums; text-align: center; color: var(--muted); }
+.winRate > p { margin: 0; font: inherit; white-space: nowrap; }
+.winRate > p > span { color: #647d6b; }
+.statDivider { color: #bead97; }
+.source { display: flex; min-height: 43px; align-items: center; justify-content: space-between; gap: 5px; margin-top: auto; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
+.source > span { display: flex; gap: 5px; align-items: center; }
+.source i { display: inline-block; width: 5px; height: 5px; background: #87a275; border-radius: 50%; }
+.source a, .source button { flex-shrink: 0; font: inherit; color: var(--accent); text-decoration: none; cursor: pointer; }
+.source a:hover, .source button:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (min-width: 1100px) { .grid { gap: 18px; } .card { padding-inline: 22px; } }
+@media (min-width: 768px) and (max-width: 1000px) { .card { padding-inline: 13px; } .leetcodeBody { grid-template-columns: 1fr; gap: 0; margin-top: 15px; } .ring { width: 150px; } .difficulties { grid-template-columns: repeat(3, 1fr); gap: 5px; } .difficulties > div { padding: 7px 2px; } .cardNote { margin: 14px 0 20px; } .winRate { padding-inline: 0; gap: 5px; } .cardHeader h3 { font-size: 13px; } .brandIcon { width: 29px; height: 32px; font-size: 17px; } }
+@media (max-width: 767px) { .section { margin-top: 3.5rem; } .sectionHeading h2 { font-size: 1.5rem; } .grid { grid-template-columns: 1fr; gap: 16px; } .card { min-height: 370px; padding-inline: 24px; } .leetcodeBody { grid-template-columns: minmax(0, 1fr) 100px; margin-top: 20px; gap: 18px; } .ringLabel strong { font-size: 40px; } .ringLabel > div > span { font-size: 14px; } .difficulties dd { font-size: 14px; } .difficulties dd span { font-size: 12px; } .cardNote { margin: 12px 0 24px; } .owlStage { min-height: 225px; } .source { font-size: 11px; } .winRate { padding-top: 18px; } }
+@media (max-width: 360px) { .card { padding-inline: 16px; } .leetcodeBody { grid-template-columns: minmax(0, 1fr) 76px; gap: 6px; } .ringLabel strong { font-size: 33px; } .ringLabel > div > span { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .rankBadge { transition: none; } }
+
+:global([data-theme="dark"]) .duolingoCard { background: radial-gradient(ellipse at 50% 45%, #293323, var(--surface) 66%); }
+:global([data-theme="dark"]) .leagueCard { background: radial-gradient(ellipse at 50% 36%, #2c3640, var(--surface) 64%); }
+:global([data-theme="dark"]) .brandIcon { background: var(--soft); border-color: var(--border); }
+:global([data-theme="dark"]) .modelCredit a { color: #b4c18c; }
+:global([data-theme="dark"]) .streak { color: #efa947; }
+:global([data-theme="dark"]) .winRate > p > span { color: #9ebeaa; }

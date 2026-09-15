@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import styles from "./NavigationTree.module.css";
 
@@ -20,15 +21,17 @@ export default function NavigationTree() {
   const router = useRouter();
   const [status, setStatus] = useState("loading");
   const [hovered, setHovered] = useState(null);
+  const [controls, setControls] = useState(null);
 
   useEffect(() => {
     let disposed = false;
     const element = host.current;
+    setControls(document.getElementById("maple-tree-controls"));
     const observer = new IntersectionObserver(async ([entry]) => {
       if (!entry.isIntersecting) return;
       observer.disconnect();
       try {
-        const { createNavigationTree } = await import(/* webpackIgnore: true */ "/scripts/navigation-tree.js?v=movable-planet-1");
+        const { createNavigationTree } = await import(/* webpackIgnore: true */ "/scripts/navigation-tree.js?v=visible-city-reflection-4");
         if (disposed) return;
         tree.current = createNavigationTree(element, {
           colors: destinations.map(destination => destination.color),
@@ -41,9 +44,9 @@ export default function NavigationTree() {
             }
           },
           onNavigate: index => router.push(destinations[index].path),
-          onProject: positions => positions.forEach(([x, y, shown], index) => {
+          onProject: positions => positions.forEach(([x, y, shown, scale], index) => {
             const link = links.current[index];
-            if (link) { link.style.left = `${x}px`; link.style.top = `${y}px`; link.hidden = !shown; }
+            if (link) { link.style.left = `${x}px`; link.style.top = `${y}px`; link.hidden = !shown; link.style.setProperty("--label-scale", scale.toFixed(3)); }
           }),
           onError: () => setStatus("unavailable"),
         });
@@ -66,7 +69,7 @@ export default function NavigationTree() {
   function handleKey(event) {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
       event.preventDefault();
-      tree.current?.rotate(event.key === "ArrowLeft" ? -.08 : event.key === "ArrowRight" ? .08 : 0, event.key === "ArrowUp" ? -.08 : event.key === "ArrowDown" ? .08 : 0, event.shiftKey);
+      tree.current?.moveTree(event.key === "ArrowLeft" ? -.08 : event.key === "ArrowRight" ? .08 : 0, event.key === "ArrowUp" ? -.08 : event.key === "ArrowDown" ? .08 : 0);
     } else if (event.key === "Escape" || event.key === "Home") {
       event.preventDefault();
       tree.current?.reset();
@@ -74,7 +77,7 @@ export default function NavigationTree() {
   }
 
   return (
-    <nav className={styles.tree} data-status={status} aria-label="Interactive maple planet. Drag the globe to rotate; drag the tree to move it." tabIndex={0} onKeyDown={handleKey} onPointerLeave={() => highlight(null)}>
+    <nav className={styles.tree} data-status={status} aria-label="A slowly rotating Earth with a draggable maple tree. Drag the tree to move it." tabIndex={0} onKeyDown={handleKey} onPointerLeave={() => highlight(null)}>
       <div ref={host} className={styles.canvas} aria-hidden="true" />
       {destinations.map((destination, index) => (
         <Link key={destination.path} href={destination.path} ref={element => { links.current[index] = element; }}
@@ -82,11 +85,10 @@ export default function NavigationTree() {
           style={{ left: `${destination.position[0]}%`, top: `${destination.position[1]}%`, "--leaf-color": destination.color }}
           onFocus={() => highlight(index)} onBlur={() => highlight(null)} onPointerEnter={() => highlight(index)}>
           <span className={styles.branchName}>{destination.name}</span>
-          <svg className={styles.flourish} width="108" height="18" viewBox="0 0 108 18" aria-hidden="true"><path d="M4 13Q38 1 84 9M84 9l16-4m-16 4 13 4" /></svg>
         </Link>
       ))}
-      <p className="sr-only">Drag the globe to rotate it, or drag the tree to move it along the surface. Arrow keys rotate the globe; Shift and arrow keys move the tree. Escape resets the scene. Select a branch to visit its page.</p>
-      {status === "ready" && <button type="button" className={styles.reset} onClick={() => tree.current?.reset()}>Reset view <span aria-hidden="true">↺</span></button>}
+      <p className="sr-only">The globe turns automatically. Drag the tree to move it along the surface, or use the arrow keys. Escape returns the tree to its original position. Select a branch to visit its page.</p>
+      {status === "ready" && controls && createPortal(<button type="button" className={styles.reset} onClick={() => tree.current?.reset()}>Reset view <span aria-hidden="true">↺</span></button>, controls)}
       {status === "loading" && <p className={styles.status} role="status">A little maple is taking root…</p>}
       {status === "unavailable" && <p className={styles.status} role="status">Choose a branch to explore.</p>}
     </nav>

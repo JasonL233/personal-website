@@ -27,7 +27,7 @@ const ProjectCard = ({
           <Image src={imgUrl} alt={`${title} preview`} fill
             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover" />
-        ) : <div className="absolute inset-0 bg-stone-100" />}
+        ) : <div className="absolute inset-0 bg-[var(--soft)]" />}
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -36,26 +36,26 @@ const ProjectCard = ({
           <div className="flex gap-4">
             <Link
               href={gitUrl}
-              className="h-16 w-16 border-2 rounded-full border-black hover:border-black bg-[#fffaf1]/90 backdrop-blur-sm hover:bg-[#fffaf1] transition-all duration-200 flex items-center justify-center group/link shadow-lg"
+              className="h-16 w-16 border-2 rounded-full border-black hover:border-black bg-[var(--surface)]/90 backdrop-blur-sm hover:bg-[var(--surface)] transition-all duration-200 flex items-center justify-center group/link shadow-lg"
             >
-              <CodeBracketIcon className="h-8 w-8 text-black group-hover/link:scale-110 transition-transform duration-200" />
+              <CodeBracketIcon className="h-8 w-8 text-[var(--foreground)] group-hover/link:scale-110 transition-transform duration-200" />
             </Link>
 
             <div
               onClick={preview}
-              className="h-16 w-16 border-2 rounded-full border-black hover:border-black bg-[#fffaf1]/90 backdrop-blur-sm hover:bg-[#fffaf1] transition-all duration-200 flex items-center justify-center group/link cursor-pointer shadow-lg"
+              className="h-16 w-16 border-2 rounded-full border-black hover:border-black bg-[var(--surface)]/90 backdrop-blur-sm hover:bg-[var(--surface)] transition-all duration-200 flex items-center justify-center group/link cursor-pointer shadow-lg"
             >
-              <EyeIcon className="h-8 w-8 text-black group-hover/link:scale-110 transition-transform duration-200" />
+              <EyeIcon className="h-8 w-8 text-[var(--foreground)] group-hover/link:scale-110 transition-transform duration-200" />
             </div>
           </div>
         </div>
       </div>
 
       <div className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+        <h3 className="text-xl font-bold text-[var(--foreground)] mb-3 line-clamp-2">
           {title}
         </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+        <p className="text-[var(--muted)] text-sm mb-4 line-clamp-3 leading-relaxed">
           {description}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -66,12 +66,12 @@ const ProjectCard = ({
                 key={index}
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   tag === "Web"
-                    ? "site-soft text-gray-600"
+                    ? "site-soft text-[var(--muted)]"
                     : tag === "AI/ML"
-                      ? "site-soft text-gray-600"
+                      ? "site-soft text-[var(--muted)]"
                       : tag === "Game Development"
-                        ? "site-soft text-gray-600"
-                        : "site-soft text-gray-600"
+                        ? "site-soft text-[var(--muted)]"
+                        : "site-soft text-[var(--muted)]"
                 }`}
               >
                 {tag}

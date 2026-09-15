@@ -10,8 +10,8 @@ const ProjectTag = ({ name, onClick, isSelected }) => {
                  relative px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out
                    ${
                      isSelected
-                       ? "bg-[#e7cfac] text-gray-700 shadow-lg shadow-[#c4a57a]/25"
-                       : "bg-[#f4ebdc] text-gray-600 hover:bg-[#eadcca] hover:text-gray-800 shadow-md hover:shadow-lg"
+                       ? "bg-[var(--highlight)] text-[var(--foreground)] shadow-lg shadow-[#c4a57a]/25"
+                       : "bg-[var(--soft)] text-[var(--muted)] hover:bg-[var(--soft)] hover:text-[var(--foreground)] shadow-md hover:shadow-lg"
                    }
              `}
       onClick={() => onClick(name)}
@@ -20,7 +20,7 @@ const ProjectTag = ({ name, onClick, isSelected }) => {
       {isSelected && (
         <motion.div
           layoutId="activeTab"
-          className="absolute inset-0 bg-[#e7cfac] rounded-full -z-10"
+          className="absolute inset-0 bg-[var(--highlight)] rounded-full -z-10"
           initial={false}
           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
         />
