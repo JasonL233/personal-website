@@ -2,13 +2,83 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import * as SiIcons from "react-icons/si";
-import * as FaIcons from "react-icons/fa";
-import * as VscIcons from "react-icons/vsc";
+import {
+  SiAxios,
+  SiCplusplus,
+  SiDocker,
+  SiFastapi,
+  SiFlask,
+  SiGit,
+  SiGithub,
+  SiGithubactions,
+  SiGo,
+  SiHtml5,
+  SiJavascript,
+  SiJsonwebtokens,
+  SiKubernetes,
+  SiLangchain,
+  SiMongodb,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiOpencv,
+  SiPostgresql,
+  SiPostman,
+  SiPython,
+  SiPytorch,
+  SiReact,
+  SiRedis,
+  SiSocketdotio,
+  SiSqlite,
+  SiTailwindcss,
+  SiTypescript,
+  SiVercel,
+} from "react-icons/si";
+import { FaAws, FaJava } from "react-icons/fa";
+import { VscVscode } from "react-icons/vsc";
 import skillsData from "@/data/skillsData";
 
-// Most brand icons come from Simple Icons; a few (e.g. AWS, VS Code) only exist elsewhere.
-const ICONS = { ...SiIcons, ...FaIcons, ...VscIcons };
+/**
+ * Most brand icons come from Simple Icons; a few (AWS, Java, VS Code) only exist elsewhere.
+ *
+ * These MUST be named imports, never `import * as Icons from "react-icons/si"`. The icon
+ * packs hold thousands of logos each, and because icons are looked up by string name below,
+ * a namespace import defeats tree-shaking and ships every one of them - that alone put ~2.6MB
+ * of unused logos into the About page's bundle. Adding a skill means adding its import here.
+ */
+const ICONS = {
+  SiAxios,
+  SiCplusplus,
+  SiDocker,
+  SiFastapi,
+  SiFlask,
+  SiGit,
+  SiGithub,
+  SiGithubactions,
+  SiGo,
+  SiHtml5,
+  SiJavascript,
+  SiJsonwebtokens,
+  SiKubernetes,
+  SiLangchain,
+  SiMongodb,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiOpencv,
+  SiPostgresql,
+  SiPostman,
+  SiPython,
+  SiPytorch,
+  SiReact,
+  SiRedis,
+  SiSocketdotio,
+  SiSqlite,
+  SiTailwindcss,
+  SiTypescript,
+  SiVercel,
+  FaAws,
+  FaJava,
+  VscVscode,
+};
 
 // Angle ranges (degrees) carve the circle into 4 quadrants; matches the reference's layout.
 // Widened a bit from the reference's original ranges (reclaiming some of the buffer space
