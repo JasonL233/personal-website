@@ -147,7 +147,7 @@ export default function PersonalActivity({ initialData = {} }) {
     <div className={styles.sectionHeading}>
       <h2 id="personal-activity-title">
         <span className={styles.sectionIcon} aria-hidden="true"><SparklesIcon /></span>
-        Beyond the code
+        Other Achievements
       </h2>
     </div>
     <div className={styles.grid}><LeetcodeCard initial={initialData.leetcode} /><DuolingoCard initial={initialData.duolingo} /><LeagueCard initial={initialData.league} /></div>

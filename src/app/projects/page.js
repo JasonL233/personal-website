@@ -9,7 +9,7 @@ export default function ProjectsPage() {
       <div className="z-10">
         <Navbar />
       </div>
-      <div className="container mt-10 mx-auto px-5 sm:px-12 py-4 z-10">
+      <div className="w-full mx-auto px-5 sm:px-12 z-10 flex-1">
         <ProjectSection />
       </div>
       <Footer />

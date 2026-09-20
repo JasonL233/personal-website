@@ -1,0 +1,51 @@
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.entries {
+  display: grid;
+  gap: 3rem;
+}
+
+.resumeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, var(--muted));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 70%, var(--muted));
+  color: var(--background);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px #00000014;
+  transition: filter 150ms ease, box-shadow 150ms ease;
+}
+
+.resumeButton svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.resumeButton:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 14px #00000024;
+}
+
+.resumeButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumeButton {
+    transition: none;
+  }
+}
